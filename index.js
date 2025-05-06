@@ -38,7 +38,7 @@ app.use(
     }
 )
 
-mongoose.connect(process.env.MONGODB_URL)
+mongoose.connect("mongodb+srv://dulneth:2003@clusterskyrek.0yjegpo.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSkyrek")
 .then(()=>{
     console.log("Connected to the database")
 }).catch(()=>{
