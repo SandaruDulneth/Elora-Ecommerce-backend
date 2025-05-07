@@ -36,11 +36,11 @@ export async function saveReview(req,res){
         const lastReview = await Review.find().sort({ reviewId: -1 }).limit(1);
 
         if (lastReview.length > 0) {
-            const lastId = lastReview[0].reviewId; // e.g., "REV0051"
-            const idNumber = parseInt(lastId.replace("REV", "")); // 51
+            const lastId = lastReview[0].reviewId; 
+            const idNumber = parseInt(lastId.replace("REV", "")); 
             const nextIdNumber = idNumber + 1;
-            const paddedId = String(nextIdNumber).padStart(5, "0"); // "00052"
-            newReviewID = "REV" + paddedId; // "REV00052"
+            const paddedId = String(nextIdNumber).padStart(5, "0");
+            newReviewID = "REV" + paddedId; 
         }
 
         const review = new Review(
