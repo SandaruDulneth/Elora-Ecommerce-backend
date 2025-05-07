@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import orderRouter from './routes/orderRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import reviewRoute from './routes/reviewRoute.js';
 dotenv.config();
 const app = express();
 app.use(cors())
@@ -18,7 +19,7 @@ app.use(
         if(tokenString != null){
             const token = tokenString.replace("Bearer ", "")
 
-            jwt.verify(token, process.env.JWT_KEY , 
+            jwt.verify(token, "nimna", 
                 (err,decoded)=>{
                     if(decoded != null){
                         req.user = decoded
@@ -51,6 +52,7 @@ mongoose.connect("mongodb+srv://dulneth:2003@clusterskyrek.0yjegpo.mongodb.net/?
 app.use("/api/products", productRouter)
 app.use("/api/users",userRouter)
 app.use("/api/orders",orderRouter)
+app.use("/api/reviews",reviewRoute)
 
 
 app.listen( 5000, 

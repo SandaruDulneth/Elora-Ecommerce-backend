@@ -1,5 +1,7 @@
 import Review from "../models/review.js";
 
+import User from "../models/user.js";
+
 
 export async function getReview(req,res){
     try{
@@ -21,12 +23,23 @@ export async function getReview(req,res){
 
 export function saveReview(req,res){
 
-    if(User.req==null){
+    if(req.user == null){
         res.status(403).json({
             message: "You need to sign in  to add a review"
         })
+        return;
     }else{
-        
+        const review = new Review(
+            req.body
+        );
+
+        review.save().then(
+            ()=>{
+                res.json({
+                    message : "Response submitted successfully"
+                })
+            }
+        )
     }
 
 }

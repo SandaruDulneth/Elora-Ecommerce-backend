@@ -68,7 +68,7 @@ export function loginUser(req,res){
                             role : user.role,
                             img : user.img
                         },
-                        process.env.JWT_KEY
+                        "nimna"
                     )
 
 
