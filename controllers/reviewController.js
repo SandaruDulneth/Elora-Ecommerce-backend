@@ -20,7 +20,7 @@ export async function getReview(req,res){
     }
 }
 
-export function saveReview(req,res){
+export async function saveReview(req,res){
 
     if(req.user == null){
         res.status(403).json({
@@ -28,8 +28,26 @@ export function saveReview(req,res){
         })
         return;
     }else{
+        
+ 
+        let newReviewID = "REV00001";
+
+        // Get the most recent review by reviewId (descending)
+        const lastReview = await Review.find().sort({ reviewId: -1 }).limit(1);
+
+        if (lastReview.length > 0) {
+            const lastId = lastReview[0].reviewId; // e.g., "REV0051"
+            const idNumber = parseInt(lastId.replace("REV", "")); // 51
+            const nextIdNumber = idNumber + 1;
+            const paddedId = String(nextIdNumber).padStart(5, "0"); // "00052"
+            newReviewID = "REV" + paddedId; // "REV00052"
+        }
+
         const review = new Review(
-            req.body
+        {   reviewId : newReviewID,
+            comment : req.body.comment,
+            rating : req.body.rating
+        }
         );
 
         review.save().then(
