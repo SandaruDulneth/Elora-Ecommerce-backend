@@ -6,6 +6,11 @@ const reviewSchema = mongoose.Schema({
         type : String,
         unique : true
     },
+
+    usersName : {
+        type : String,
+        require : true
+    },
     
     comment : {
         type : String,
@@ -16,6 +21,8 @@ const reviewSchema = mongoose.Schema({
         type : Number,
         require : true
     }
+
+    
 })
 const Review = mongoose.model("reviews", reviewSchema);
 

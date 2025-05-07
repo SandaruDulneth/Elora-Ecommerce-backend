@@ -45,6 +45,7 @@ export async function saveReview(req,res){
 
         const review = new Review(
         {   reviewId : newReviewID,
+            usersName : req.user.firstName + "  " + req.user.lastName,
             comment : req.body.comment,
             rating : req.body.rating
         }
