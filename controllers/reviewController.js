@@ -1,6 +1,5 @@
 import Review from "../models/review.js";
-
-import User from "../models/user.js";
+import { isAdmin } from "./userController.js";
 
 
 export async function getReview(req,res){
