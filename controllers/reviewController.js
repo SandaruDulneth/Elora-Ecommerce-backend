@@ -61,3 +61,12 @@ export async function saveReview(req,res){
     }
 
 }
+
+export async function updateReview(req,res){
+    try{
+        
+
+    }catch{
+
+    }
+}
