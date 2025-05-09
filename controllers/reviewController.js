@@ -88,10 +88,10 @@ export async function updateReview(req, res) {
         }
 
         await Review.updateOne(
-            { reviewId },
+          
             {
-                comment: comment,
-                rating: rating
+             comment: comment,
+              rating: rating
             }
         );
 
@@ -107,5 +107,44 @@ export async function updateReview(req, res) {
     }
 }
 
+
+export async function deleteReview(req,res){
+    const reviewId = req.body.reviewId;
+   
+    if(req.user == null){
+        res.status(403).json({
+            message : "you need to sign in first to delete reviews !" 
+        })
+        return
+    }
+    
+    try{
+        const review = await Review.findOne({ reviewId });
+    if (req.user.email == review.email || isAdmin(req)) {
+      
+          
+            await Review.deleteOne({
+               reviewId
+            })
+
+            res.json({
+                message : "Review deleted successfully"
+            })
+    
+      
+    }
+    return res.status(403).json({
+        message: "You can only delete your own reviews!"
+    });
+   
+    }
+    catch (err) {
+        return res.status(500).json({
+            message: "Failed to delete review",
+            error: err.message
+        });
+    }
+    
+}
 
     
