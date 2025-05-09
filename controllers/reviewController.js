@@ -46,6 +46,7 @@ export async function saveReview(req,res){
         const review = new Review(
         {   reviewId : newReviewID,
             usersName : req.user.firstName + "  " + req.user.lastName,
+            email : req.user.email,
             comment : req.body.comment,
             rating : req.body.rating
         }
@@ -62,11 +63,49 @@ export async function saveReview(req,res){
 
 }
 
-export async function updateReview(req,res){
-    try{
-        
+export async function updateReview(req, res) {
+    if (!req.user) {
+        return res.status(403).json({
+            message: "You need to sign in to edit a review"
+        });
+    }
 
-    }catch{
+    const { reviewId, comment, rating } = req.body;
 
+    try {
+        const review = await Review.findOne({ reviewId });
+
+        if (!review) {
+            return res.status(404).json({
+                message: "No review found for this ID"
+            });
+        }
+
+        if (req.user.email !== review.email) {
+            return res.status(403).json({
+                message: "You can only edit your own reviews!"
+            });
+        }
+
+        await Review.updateOne(
+            { reviewId },
+            {
+                comment: comment,
+                rating: rating
+            }
+        );
+
+        res.json({
+            message: "Review updated successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to update review",
+            error: err.message
+        });
     }
 }
+
+
+    

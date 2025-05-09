@@ -8,6 +8,7 @@ import orderRouter from './routes/orderRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import reviewRoute from './routes/reviewRoute.js';
+import { updateReview } from './controllers/reviewController.js';
 dotenv.config();
 const app = express();
 app.use(cors())
@@ -53,6 +54,7 @@ app.use("/api/products", productRouter)
 app.use("/api/users",userRouter)
 app.use("/api/orders",orderRouter)
 app.use("/api/reviews",reviewRoute)
+
 
 
 app.listen( 5000, 
