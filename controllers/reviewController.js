@@ -1,7 +1,7 @@
 import Review from "../models/review.js";
 import { isAdmin } from "./userController.js";
 
-//jjj
+
 export async function getReview(req,res){
     try{
         if(isAdmin(req)){
@@ -19,7 +19,7 @@ export async function getReview(req,res){
         })
     }
 }
-
+//hello
 export async function saveReview(req,res){
 
     if(req.user == null){
