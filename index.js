@@ -40,14 +40,12 @@ app.use(
     }
 )
 
-mongoose.connect("mongodb+srv://dulneth:2003@clusterskyrek.0yjegpo.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSkyrek")
+mongoose.connect("mongodb+srv://sandaru:1234@clusteralfa.c4vekd3.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAlfa")
 .then(()=>{
     console.log("Connected to the database")
 }).catch(()=>{
     console.log("Database connection failed")
 })
-
-
 
 
 app.use("/api/products", productRouter)

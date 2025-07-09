@@ -73,13 +73,14 @@ export function loginUser(req,res){
 
 
                     res.json({
+                        token : token,
                         message : "Login successful",
-                        token : token
+                        
                     })
 
                 }else{
                     res.status(401).json({
-                        message : "Invalid password"
+                        message : "Invalid password",
                     })
                 }
             }

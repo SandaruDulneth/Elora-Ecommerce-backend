@@ -20,32 +20,24 @@ export async function getProducts(req,res){
     }
 }
 
-export function saveProduct(req, res){
-
-    if(!isAdmin(req)){
-        res.status(403).json({
-            message: "You are not authorized to add a product"
-        })
-        return
+export function saveProduct(req, res) {
+    if(!isAdmin(req)) {
+        return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const product = new Product(
-        req.body
-    );
+    const product = new Product(req.body);
 
-    product
-        .save()
+    product.save()
         .then(() => {
-            res.json({
-                message: "Product added successfully",
-            });
+            res.json({ message: "Product added successfully" });
         })
-        .catch(() => {
-            res.json({
+        .catch((err) => {  // Add error parameter here
+            console.error("Save error:", err);  // Log the actual error
+            res.status(500).json({
                 message: "Failed to add product",
+                error: err.message  // Include the error message in response
             });
-        }
-    );
+        });
 }
 
 export async function deleteProduct(req,res){
