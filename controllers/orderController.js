@@ -156,8 +156,5 @@ export async function updateOrderStatus(req,res){
 		return;
 	}
 
-	
-
-	
-	
 }
+
