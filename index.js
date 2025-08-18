@@ -22,7 +22,7 @@ app.use(
         if(tokenString != null){
             const token = tokenString.replace("Bearer ", "")
 
-            jwt.verify(token, "nimna", 
+            jwt.verify(token, process.env.JWT_KEY, 
                 (err,decoded)=>{
                     if(decoded != null){
                         req.user = decoded
@@ -41,7 +41,7 @@ app.use(
     }
 )
 
-mongoose.connect("mongodb+srv://sandaru:1234@clusteralfa.c4vekd3.mongodb.net/?retryWrites=true&w=majority&appName=ClusterAlfa")
+mongoose.connect(process.env.MONGODB_URL)
 .then(()=>{
     console.log("Connected to the database")
 }).catch(()=>{

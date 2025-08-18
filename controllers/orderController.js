@@ -18,7 +18,7 @@ export async function createOrder(req, res) {
 
 	//CBC00001
 	let orderId = "CBC00001";
-
+    
 	const lastOrder = await Order.find().sort({ date: -1 }).limit(1);
 	//[]
 	if (lastOrder.length > 0) {
@@ -123,6 +123,17 @@ export async function getOrders(req, res) {
 		});
 	}
 }
+
+export async function getMyOrders(req, res) {
+    try {
+        const orders = await Order.find({ email: req.user.email });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch orders", error: err });
+    }
+}
+
+
 
 export async function updateOrderStatus(req,res){
 	if (!isAdmin(req)) {

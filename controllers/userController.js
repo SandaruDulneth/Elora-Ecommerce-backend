@@ -1,10 +1,10 @@
-import User from "../models/user.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import axios from "axios";
+import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import OTP from "../models/otp.js";
+import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import OTP from "../models/otp.js";
+import User from "../models/user.js";
 dotenv.config();
 
 export function createUser(req,res){
@@ -50,6 +50,22 @@ export function createUser(req,res){
     )
 }
 
+// Add this to your backend controller
+export async function getAllUsers(req, res) {
+    try {
+        // Check if user is admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: "Only admins can view all users" });
+        }
+
+        // Get all users from database
+        const users = await User.find({}, { password: 0 }); // Exclude passwords
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching users", error: error.message });
+    }
+}
+
 export function loginUser(req,res){
     const email = req.body.email
     const password = req.body.password
@@ -71,7 +87,7 @@ export function loginUser(req,res){
                             role : user.role,
                             img : user.img
                         },
-                        "nimna"
+                         process.env.JWT_KEY
                     )
                     res.json({
                         token : token,
@@ -130,7 +146,7 @@ export async function loginWithGoogle(req,res){
                 role: newUser.role,
                 img: newUser.img
             },
-            "nimna"
+             process.env.JWT_KEY
         )
         res.json({
             message: "Login successful",
@@ -148,7 +164,7 @@ export async function loginWithGoogle(req,res){
                 role: user.role,
                 img: user.img
             },
-            "nimna"
+            process.env.JWT_KEY
         )
         res.json({
             message: "Login successful",
@@ -165,14 +181,13 @@ const transport = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: "sdulneth29@gmail.com",
-        pass: "crekkialkkbxzphm"
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 })
 
 export async function sendOTP(req,res){
 
-    //crek kial kkbx zphm
     const randomOTP = Math.floor(100000 + Math.random() * 900000);
     const email = req.body.email;
     if(email == null){
@@ -200,7 +215,7 @@ export async function sendOTP(req,res){
     const message = {
         from : "sdulneth29@gmail.com",
         to: email,
-        subject : "Resetting password for crystal beauty clear.",
+        subject : "Resetting password for Elora beauty.",
         text : "This your password reset OTP : " + randomOTP
     }
 
@@ -278,40 +293,56 @@ export async function resetPassword(req,res){
             meassage : "OTPs are not matching!"
         })
     }
-
 }
 
 // In your user controller
 
 export async function getProfile(req, res) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+    if (!req.user) {
+        return res.status(403).json({ message: "Not logged in" });
+    }
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Invalid token format" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, "nimna"); // use same secret as login
-    const user = await User.findOne({ email: decoded.email });
+    const user = await User.findOne({ email: req.user.email });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "User not found" });
     }
 
     res.json({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      img: user.img || "https://avatar.iran.liara.run/public/boy?username=Ash",
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        img: user.img || "https://avatar.iran.liara.run/public/boy?username=Ash",
     });
-  } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token" });
-  }
+}
+
+ 
+export async function updateEmail(req,res){
+    try {
+        const { newEmail } = req.body;
+        if (!newEmail) {
+            return res.status(400).json({ message: "New email is required" });
+        }
+        // req.user.email comes from the token
+        const updatedUser = await User.findOneAndUpdate(
+            { email: req.user.email },
+            { email: newEmail },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({
+            message: "Email updated successfully",
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error("Error updating email:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 }
 
 
