@@ -1,24 +1,22 @@
 import Product from "../models/product.js";
 import { isAdmin } from "./userController.js";
 
-export async function getProducts(req,res){
+export async function getProducts(req, res) {
+  try {
+    const { sort = "createdAt", order = "desc" } = req.query;
+    const allowed = new Set(["createdAt", "_id", "price", "name", "labelledPrice"]);
+    const sortField = allowed.has(sort) ? sort : "createdAt";
+    const sortOrder = order === "asc" ? 1 : -1;
+    const filter = isAdmin(req) ? {} : { isAvailable: true };
+    
+    const products = await Product.find(filter).sort({ [sortField]: sortOrder });
 
-    try{
-        if(isAdmin(req)){
-            const products = await Product.find()
-            res.json(products)
-        }else{
-            const products = await Product.find({isAvailable : true})
-            res.json(products)
-        }
-        
-    }catch(err){
-        res.json({
-            message: "Failed to get products",
-            error: err
-        })
-    }
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to get products", error: String(err) });
+  }
 }
+
 
 export function saveProduct(req, res) {
     if(!isAdmin(req)) {

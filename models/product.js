@@ -24,10 +24,14 @@ const productSchema = mongoose.Schema({
 		type : Number,
 		required : true
 	},
-	price : {
-		type : Number,
-		required : true
-	},
+	price: {
+      type: Number,
+      required: false,
+      default: function () {
+        return this.labelledPrice;
+      },
+      index: true,
+    },
 	stock : {
 		type : Number,
 		required : true
@@ -37,7 +41,10 @@ const productSchema = mongoose.Schema({
 		required : true,
 		default : true
 	},
-});
+	
+},
+  { timestamps: true }
+);
 
 const Product = mongoose.model("products", productSchema);
 
