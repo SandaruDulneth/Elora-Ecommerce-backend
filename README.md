@@ -45,7 +45,11 @@ VITE_BACKEND_URL
 ```
 
 ### License
-MIT
+MIT License
+
+Copyright (c) 2025 [Sandaru Dulneth]
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+
 
 
 
