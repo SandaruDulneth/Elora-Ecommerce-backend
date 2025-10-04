@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import OTP from "../models/otp.js";
 import User from "../models/user.js";
 import { Resend } from "resend";
-import User from "../models/user.js";
+
 
 dotenv.config();
 
