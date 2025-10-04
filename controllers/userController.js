@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import OTP from "../models/otp.js";
 import User from "../models/user.js";
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
 
 
 dotenv.config();
@@ -180,33 +180,23 @@ export async function loginWithGoogle(req,res){
 
 
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendOTP(req, res) {
   try {
     const email = req.body.email;
-
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     const randomOTP = Math.floor(100000 + Math.random() * 900000);
-
     await OTP.deleteMany({ email });
+    await new OTP({ email, otp: randomOTP }).save();
 
-    const otp = new OTP({ email, otp: randomOTP });
-    await otp.save();
-
-    // 💌 Send email using Resend
-    const { data, error } = await resend.emails.send({
-      // ✅ Must be a valid address you own or verified on Resend
-      from: "Elora Beauty <onboarding@resend.dev>",
+    const msg = {
       to: email,
+      from: "sdulneth20@gmail.com", // ✅ your Gmail (you’ll verify it once)
       subject: "Resetting password for Elora Beauty",
       html: `
         <div style="font-family: Arial, sans-serif; color: #333;">
@@ -216,25 +206,18 @@ export async function sendOTP(req, res) {
           <p>This code will expire soon. Please do not share it with anyone.</p>
         </div>
       `,
-    });
+    };
 
-    if (error) {
-      console.error("❌ Email send error:", error);
-      return res.status(500).json({ message: "Failed to send OTP", error });
-    }
+    await sgMail.send(msg);
+    console.log("✅ Email sent successfully to:", email);
 
-    console.log("✅ Email sent successfully:", data?.id);
-
-    return res.status(200).json({
+    res.status(200).json({
       message: "OTP sent successfully",
       otp: randomOTP,
     });
   } catch (err) {
-    console.error("❌ Server error:", err);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: err.message,
-    });
+    console.error("❌ Error sending OTP:", err);
+    res.status(500).json({ message: "Failed to send OTP", error: err.message });
   }
 }
 
