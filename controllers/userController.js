@@ -2,9 +2,11 @@ import axios from "axios";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
 import OTP from "../models/otp.js";
 import User from "../models/user.js";
+import { Resend } from "resend";
+import User from "../models/user.js";
+
 dotenv.config();
 
 export function createUser(req,res){
@@ -175,70 +177,67 @@ export async function loginWithGoogle(req,res){
     }
 
 }
-const transport = nodemailer.createTransport({
-    service: 'gmail',
-    host : 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-})
 
-export async function sendOTP(req,res){
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function sendOTP(req, res) {
+  try {
+    const email = req.body.email;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const randomOTP = Math.floor(100000 + Math.random() * 900000);
-    const email = req.body.email;
-    if(email == null){
-        res.status(400).json({
-            message: "Email is required"
-        });
-        return;
-    
-    }
-    const user = await User.findOne({
-        email : email
-    })
-    if(user == null){
-        res.status(404).json({
-            message:"User not found"
-        })
-    }
 
-    //delete all otps
-    await OTP.deleteMany({
-        email: email
-    })
+    await OTP.deleteMany({ email });
 
-    
-    const message = {
-        from : "sdulneth29@gmail.com",
-        to: email,
-        subject : "Resetting password for Elora beauty.",
-        text : "This your password reset OTP : " + randomOTP
+    const otp = new OTP({ email, otp: randomOTP });
+    await otp.save();
+
+    // 💌 Send email using Resend
+    const { data, error } = await resend.emails.send({
+      // ✅ Must be a valid address you own or verified on Resend
+      from: "Elora Beauty <sdulneth20@gmail.com>",
+      to: email,
+      subject: "Resetting password for Elora Beauty",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Elora Beauty</h2>
+          <p>Use the following OTP to reset your password:</p>
+          <h1 style="color: #E91E63;">${randomOTP}</h1>
+          <p>This code will expire soon. Please do not share it with anyone.</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("❌ Email send error:", error);
+      return res.status(500).json({ message: "Failed to send OTP", error });
     }
 
-    const otp = new OTP({
-        email : email,
-        otp : randomOTP
-    })
-    await otp.save()
-    transport.sendMail(message,(error,info)=>{
-            if(error){
-                res.status(500).json({
-                    message: "Failed to send OTP",
-                    error: error
-                });
-            }else{
-                res.json({
-                    message: "OTP sent successfully",
-                    otp: randomOTP
-                });
-            }
-        }
-    )
+    console.log("✅ Email sent successfully:", data?.id);
+
+    return res.status(200).json({
+      message: "OTP sent successfully",
+      otp: randomOTP,
+    });
+  } catch (err) {
+    console.error("❌ Server error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
 }
+
 
 export function getUser(req,res){
     if(req.user == null){
