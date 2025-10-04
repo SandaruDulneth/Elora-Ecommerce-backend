@@ -205,7 +205,7 @@ export async function sendOTP(req, res) {
     // 💌 Send email using Resend
     const { data, error } = await resend.emails.send({
       // ✅ Must be a valid address you own or verified on Resend
-      from: "Elora Beauty <sdulneth20@gmail.com>",
+      from: "Elora Beauty <onboarding@resend.dev>",
       to: email,
       subject: "Resetting password for Elora Beauty",
       html: `
