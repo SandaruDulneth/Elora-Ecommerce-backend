@@ -52,7 +52,7 @@ export function createUser(req,res){
     )
 }
 
-// Add this to your backend controller
+
 export async function getAllUsers(req, res) {
     try {
         // Check if user is admin
@@ -196,7 +196,7 @@ export async function sendOTP(req, res) {
 
     const msg = {
       to: email,
-      from: "sdulneth20@gmail.com", // ✅ your Gmail (you’ll verify it once)
+      from: "sdulneth20@gmail.com", 
       subject: "Resetting password for Elora Beauty",
       html: `
         <div style="font-family: Arial, sans-serif; color: #333;">
@@ -209,14 +209,14 @@ export async function sendOTP(req, res) {
     };
 
     await sgMail.send(msg);
-    console.log("✅ Email sent successfully to:", email);
+    console.log("Email sent successfully to:", email);
 
     res.status(200).json({
       message: "OTP sent successfully",
       otp: randomOTP,
     });
   } catch (err) {
-    console.error("❌ Error sending OTP:", err);
+    console.error("Error sending OTP:", err);
     res.status(500).json({ message: "Failed to send OTP", error: err.message });
   }
 }
@@ -277,7 +277,7 @@ export async function resetPassword(req,res){
     }
 }
 
-// In your user controller
+
 
 export async function getProfile(req, res) {
     if (!req.user) {
